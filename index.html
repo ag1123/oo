@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>    <style>
+        h1{
+            text-align: center;
+            color: #3c4248;
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!--<div id="container" style="width:100%; height:400px;"></div>-->
+    <h1>Without you</h1>
+    <canvas id="c"></canvas>
+
+    <h1>With you</h1>
+
+    <canvas id="c1"></canvas>
+
+
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script>
+        var a = 0.1,
+            gamma = 1,
+            beta = 0.5,
+            epsilon = 0.05,
+            delta = 0,
+            totalTime = 120,
+            timePeriod = 60,
+            dt = 1,
+            initialTime = 0,
+            u = [],
+            v = [];
+
+        u[initialTime] = 1;
+        v[initialTime] = 1;
+
+        var timeArray = [],
+                heartBeat = [];
+
+
+
+
+        for(var t = initialTime; t < timePeriod; t=t+dt){
+            v[t+dt] = v[t] + epsilon*(beta*u[t] - gamma*v[t] - delta)*dt;
+
+            timeArray.push(t);
+
+            u[t+dt] = u[t] + ((a - u[t])*( u[t] - 1)*u[t] - v[t])*dt;
+        }
+
+        u = u.splice(0 ,u.length -1);
+        v = v.splice(0 ,v.length -1);
+
+        heartBeat = heartBeat.concat(u);
+
+        for (var j=0; j<= totalTime/timePeriod; j++){
+            heartBeat = heartBeat.concat(u);
+
+            for(var i = 0; i<timePeriod; i++){
+                timeArray.push(timeArray[timeArray.length -1] + i);
+            }
+        }
+
+        console.log(heartBeat.length);
+        console.log(timeArray.length);
+
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: 'Heart Beat'
+                },
+                xAxis: {
+                    categories: timeArray
+                },
+                yAxis: {
+                    title: {
+                        text: 'Heart Beat'
+                    }
+                },
+                series: [{
+                    name: 'u',
+                    data: heartBeat
+                }, {
+                    name: 'v',
+                    data: v
+                }]
+            });
+        });
+
+
+
+        //CANVAS CODE
+
+        var MAX_RADIUS = 900;
+        var a = 1;
+        var b = 5;
+
+        var circleRadius = 130;
+        var initialLineWidth = 10;
+
+        var theta = 0;
+        var deltatheta = 1;
+
+        var firstTimeSpiralDrawFlag = true;
+
+        var c_canvas = document.getElementById("c1");
+        var context = c_canvas.getContext("2d");
+
+        context.canvas.width = window.innerWidth;
+        context.canvas.height = window.innerHeight/2;
+
+        context.translate(context.canvas.width/2,context.canvas.height/2);
+
+        function draw(){
+            context.beginPath();
+
+            context.lineWidth = radius;
+            context.strokeStyle = "#778899";
+            context.arc(0,0,circleRadius,0,2*Math.PI);
+            context.stroke();
+        }
+
+
+
+        function clearCircle(){
+            context.clearRect(0, 0, c_canvas.width, c_canvas.height);
+            context.clearRect(0, 0, -1*c_canvas.width, c_canvas.height);
+            context.clearRect(0, 0, -1*c_canvas.width, -1*c_canvas.height);
+            context.clearRect(0, 0, c_canvas.width, -1*c_canvas.height);
+        }
+
+
+        var radius = 0,
+                radiusChange = 0;
+
+        function animate(){
+
+            radius = initialLineWidth - 10*(u[radiusChange] - 2);
+            radiusChange = radiusChange + 1;
+
+            if(radiusChange%timePeriod === 0){
+                radiusChange = 0;
+            }
+
+            clearCircle();
+
+            draw();
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+
+        var MAX_RADIUS = 500;
+        var a = 1;
+        var b = 2;
+
+        var r = 0;
+
+        var theta = 0;
+        var deltatheta = 0.01;
+
+        var numberOfTrails = 0;
+
+        var firstTimeSpiralDrawFlag = true;
+
+        var c_canvas = document.getElementById("c");
+        var context1 = c_canvas.getContext("2d");
+
+        context1.canvas.width = window.innerWidth;
+        context1.canvas.height = window.innerHeight/2;
+
+
+        context1.translate(context1.canvas.width/2,context1.canvas.height/2);
+
+        function drawSpiral(){
+
+            context1.moveTo(0,0);
+            context1.beginPath();
+
+            var randomNumber = Math.random();
+
+            for(var i = 0; i < 100; i++){
+
+                theta = Math.random()*i;
+
+                //theta = theta + 0.5;
+
+                r = a + b*theta;
+
+                x = r*Math.sin(theta + deltatheta);
+                y = r*Math.cos(theta + deltatheta);
+
+                context1.lineTo(x,y);
+            }
+
+            context1.strokeStyle = "#778899";
+
+            context1.stroke();
+            context1.closePath();
+
+        }
+
+        function clear(){
+            //context1.translate(-1*window.innerWidth/2,-1*window.innerHeight/2);
+
+            context1.clearRect(0, 0, c_canvas.width, c_canvas.height);
+            context1.clearRect(0, 0, -1*c_canvas.width, c_canvas.height);
+            context1.clearRect(0, 0, -1*c_canvas.width, -1*c_canvas.height);
+            context1.clearRect(0, 0, c_canvas.width, -1*c_canvas.height);
+
+            //context1.translate(window.innerWidth/2,window.innerHeight/2);
+        }
+
+        var trailNumber = 0;
+
+
+        function rotateSpiral(){
+            //Clear
+
+            //Draw
+            r = 0;
+            theta = 0;
+
+            trailNumber = trailNumber + 1;
+
+            clear();
+
+            deltatheta = deltatheta + 0.1;
+
+            drawSpiral();
+
+
+
+            requestAnimationFrame(rotateSpiral);
+        }
+        requestAnimationFrame(rotateSpiral);
+
+    </script>
+</body>
+</html>
